@@ -4,8 +4,8 @@ import airflow
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from dags.handlers import command
-from dags.handlers import machine
+from .handlers import command
+from .handlers import machine
 
 default_args = {
     'owner': 'zhengshuai',
@@ -19,7 +19,6 @@ dag = DAG(
     description='交付机器',
     schedule_interval=None,
 )
-
 
 """
 POST /api/v1/scheduler/<dag_name>
@@ -45,13 +44,27 @@ t0 = PythonOperator(
 )
 
 t1 = PythonOperator(
+    task_id='wait_instance_state_finish',
+    provide_context=True,
+    python_callable=machine.create_instance_handler,
+    dag=dag,
+)
+
+t2 = PythonOperator(
+    task_id='wait_ping_telnet_finish',
+    provide_context=True,
+    python_callable=machine.wait_ping_telnet_finish,
+    dag=dag,
+)
+
+t3 = PythonOperator(
     task_id='system_init',
     provide_context=True,
     python_callable=command.system_init_handler,
     dag=dag,
 )
 
-t2 = PythonOperator(
+t4 = PythonOperator(
     task_id='wait_system_init_status',
     provide_context=True,
     python_callable=command.wait_system_init_status_handler,
@@ -60,14 +73,14 @@ t2 = PythonOperator(
     dag=dag,
 )
 
-t3 = PythonOperator(
+t5 = PythonOperator(
     task_id='application_init',
     provide_context=True,
     python_callable=command.application_init_handler,
     dag=dag,
 )
 
-t4 = PythonOperator(
+t6 = PythonOperator(
     task_id='wait_application_init_finish',
     provide_context=True,
     python_callable=command.wait_application_init_finish_handler,
@@ -76,4 +89,4 @@ t4 = PythonOperator(
     dag=dag,
 )
 
-tx >> t0 >> t1 >> t2 >> t3 >> t4
+tx >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> t6
