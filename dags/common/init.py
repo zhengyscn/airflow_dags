@@ -2,7 +2,7 @@ import json
 
 from pprint import pprint
 
-from .exceptions import AirflowHttpExcept
+from dags.common.exceptions import AirflowHttpExcept
 
 
 def before_request(kwargs):

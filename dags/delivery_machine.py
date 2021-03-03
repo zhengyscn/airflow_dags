@@ -4,8 +4,8 @@ import airflow
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from .handlers import command
-from .handlers import machine
+from dags.handlers import command
+from dags.handlers import machine
 
 default_args = {
     'owner': 'zhengshuai',
